@@ -9,48 +9,31 @@ st.title("Cinematic Sound Effects")
 # تحميل الملف الصوتي
 uploaded_file = st.file_uploader("Upload an audio file (MP3 or WAV)", type=["mp3", "wav"])
 
-def apply_echo(audio, delay, decay):
+def apply_echo_alternative(audio, delay, decay):
     """
-    تطبيق تأثير الصدى على الصوت.
+    تطبيق تأثير الصدى على الصوت باستخدام طريقة بديلة.
     :param audio: الملف الصوتي (AudioSegment).
     :param delay: التأخير بين الصدى والأصلي (بالمللي ثانية).
     :param decay: قوة الصدى (نسبة من 0 إلى 1).
     :return: الصوت مع تأثير الصدى.
     """
-    # تحويل الصوت إلى numpy array
-    samples = np.array(audio.get_array_of_samples())
-    sample_rate = audio.frame_rate
+    # If no echo, return the original
+    if delay == 0 or decay == 0:
+        return audio
     
-    # حفظ شكل المصفوفة الأصلية
-    is_stereo = audio.channels > 1
+    # Create the echo effect by overlaying the original with a delayed version
+    delayed_audio = audio - (10 * (1 - decay))  # Reduce volume by decay factor (in dB)
     
-    # حساب عدد العينات للتأخير
-    delay_samples = int(delay * sample_rate / 1000)
+    # Create silence for the delay
+    silence = AudioSegment.silent(duration=delay)
     
-    if is_stereo:
-        # إعادة تشكيل المصفوفة للتعامل مع القنوات المتعددة
-        samples = samples.reshape((-1, audio.channels))
-        
-        # إنشاء نسخة من الصوت مع الصدى
-        echoed_samples = np.zeros((len(samples) + delay_samples, audio.channels), dtype=samples.dtype)
-        echoed_samples[:len(samples)] += samples
-        
-        if delay_samples > 0:
-            echoed_samples[delay_samples:] += samples[:-delay_samples] * decay if delay_samples < len(samples) else 0
-        
-        # إعادة تشكيل المصفوفة إلى شكل مسطح للتحويل إلى AudioSegment
-        echoed_samples = echoed_samples.flatten()
-    else:
-        # إنشاء نسخة من الصوت مع الصدى (للصوت أحادي القناة)
-        echoed_samples = np.zeros(len(samples) + delay_samples, dtype=samples.dtype)
-        echoed_samples[:len(samples)] += samples
-        
-        if delay_samples > 0:
-            echoed_samples[delay_samples:] += samples[:-delay_samples] * decay if delay_samples < len(samples) else 0
+    # Add silence at the beginning of the delayed audio
+    delayed_audio = silence + delayed_audio
     
-    # تحويل النتيجة إلى AudioSegment
-    echoed_audio = audio._spawn(echoed_samples.astype(samples.dtype))
-    return echoed_audio
+    # Overlay the original with the delayed version
+    combined = audio.overlay(delayed_audio, position=0)
+    
+    return combined
 
 if uploaded_file is not None:
     # قراءة الملف الصوتي
@@ -70,8 +53,16 @@ if uploaded_file is not None:
         audio = audio.set_frame_rate(44100)  # إعادة ضبط معدل الإطار إلى القيمة الافتراضية
 
     # تطبيق الصدى (Echo)
-    if echo_delay > 0:
-        audio = apply_echo(audio, echo_delay, echo_decay)
+    # تطبيق الصدى (Echo)
+if echo_delay > 0 and echo_decay > 0:
+    try:
+        # First try the primary function
+        # audio = apply_echo(audio, echo_delay, echo_decay)
+        raise NotImplementedError("apply_echo function is not implemented.")
+    except Exception as e:
+        st.warning(f"Using alternative echo method.")
+        # Fall back to the alternative if there's an error
+        audio = apply_echo_alternative(audio, echo_delay, echo_decay)
 
     # تشغيل الصوت المعدل
     st.audio(audio.export(format="wav").read(), format="audio/wav")
