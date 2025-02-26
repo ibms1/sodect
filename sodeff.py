@@ -20,17 +20,36 @@ def apply_echo(audio, delay, decay):
     # تحويل الصوت إلى numpy array
     samples = np.array(audio.get_array_of_samples())
     sample_rate = audio.frame_rate
-
+    
+    # حفظ شكل المصفوفة الأصلية
+    is_stereo = audio.channels > 1
+    
     # حساب عدد العينات للتأخير
     delay_samples = int(delay * sample_rate / 1000)
-
-    # إنشاء نسخة من الصوت مع الصدى
-    echoed_samples = np.zeros(len(samples) + delay_samples)
-    echoed_samples[:len(samples)] += samples
-    echoed_samples[delay_samples:] += samples[:-delay_samples] * decay
-
+    
+    if is_stereo:
+        # إعادة تشكيل المصفوفة للتعامل مع القنوات المتعددة
+        samples = samples.reshape((-1, audio.channels))
+        
+        # إنشاء نسخة من الصوت مع الصدى
+        echoed_samples = np.zeros((len(samples) + delay_samples, audio.channels), dtype=samples.dtype)
+        echoed_samples[:len(samples)] += samples
+        
+        if delay_samples > 0:
+            echoed_samples[delay_samples:] += samples[:-delay_samples] * decay if delay_samples < len(samples) else 0
+        
+        # إعادة تشكيل المصفوفة إلى شكل مسطح للتحويل إلى AudioSegment
+        echoed_samples = echoed_samples.flatten()
+    else:
+        # إنشاء نسخة من الصوت مع الصدى (للصوت أحادي القناة)
+        echoed_samples = np.zeros(len(samples) + delay_samples, dtype=samples.dtype)
+        echoed_samples[:len(samples)] += samples
+        
+        if delay_samples > 0:
+            echoed_samples[delay_samples:] += samples[:-delay_samples] * decay if delay_samples < len(samples) else 0
+    
     # تحويل النتيجة إلى AudioSegment
-    echoed_audio = audio._spawn(echoed_samples.astype(np.int16))
+    echoed_audio = audio._spawn(echoed_samples.astype(samples.dtype))
     return echoed_audio
 
 if uploaded_file is not None:
