@@ -35,6 +35,10 @@ def apply_echo_alternative(audio, delay, decay):
     
     return combined
 
+# Initialize echo parameters with default values
+echo_delay = 0
+echo_decay = 0
+
 if uploaded_file is not None:
     # قراءة الملف الصوتي
     audio = AudioSegment.from_file(uploaded_file)
