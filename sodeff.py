@@ -52,8 +52,8 @@ if uploaded_file is not None:
         audio = audio._spawn(audio.raw_data, overrides={'frame_rate': new_sample_rate})
         audio = audio.set_frame_rate(44100)  # إعادة ضبط معدل الإطار إلى القيمة الافتراضية
 
-    # تطبيق الصدى (Echo)
-    # تطبيق الصدى (Echo)
+# تطبيق الصدى (Echo)
+# تطبيق الصدى (Echo)
 if echo_delay > 0 and echo_decay > 0:
     try:
         # First try the primary function
