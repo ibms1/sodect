@@ -45,12 +45,12 @@ if uploaded_file is not None:
     echo_delay = st.slider("Echo Delay (ms)", 0, 1000, 200, help="Delay between echoes in milliseconds.")
     echo_decay = st.slider("Echo Decay", 0.0, 1.0, 0.5, help="Decay factor for the echo effect.")
 
-# تطبيق تغيير طبقة الصوت (Pitch Shift)
-if pitch_shift_amount != 0:
-    # تغيير السرعة لتغيير طبقة الصوت
-    new_sample_rate = int(audio.frame_rate * (2.0 ** (pitch_shift_amount / 12.0)))
-    audio = audio._spawn(audio.raw_data, overrides={'frame_rate': new_sample_rate})
-    audio = audio.set_frame_rate(44100)  # إعادة ضبط معدل الإطار إلى القيمة الافتراضية
+    # تطبيق تغيير طبقة الصوت (Pitch Shift)
+    if pitch_shift_amount != 0:
+        # تغيير السرعة لتغيير طبقة الصوت
+        new_sample_rate = int(audio.frame_rate * (2.0 ** (pitch_shift_amount / 12.0)))
+        audio = audio._spawn(audio.raw_data, overrides={'frame_rate': new_sample_rate})
+        audio = audio.set_frame_rate(44100)  # إعادة ضبط معدل الإطار إلى القيمة الافتراضية
 
 # تطبيق الصدى (Echo)
 # تطبيق الصدى (Echo)
