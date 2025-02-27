@@ -36,7 +36,14 @@ def apply_echo_alternative(audio, delay, decay):
     return combined
 
 # Initialize echo parameters with default values
-echo_delay = 0
+hide_warning = """
+<style>
+div[data-testid="stAlert"] {
+    display: none;
+}
+</style>
+"""
+st.markdown(hide_warning, unsafe_allow_html=True)
 echo_decay = 0
 
 if uploaded_file is not None:
