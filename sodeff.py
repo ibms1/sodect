@@ -113,3 +113,26 @@ hide_streamlit_style = """
 
 # Apply the custom CSS
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
+
+
+
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            .stDeployButton {display:none;}
+            #stStreamlitLogo {display: none;}
+            a {
+                text-decoration: none;
+                color: inherit;
+                pointer-events: none;
+            }
+            a:hover {
+                text-decoration: none;
+                color: inherit;
+                cursor: default;
+            }
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
